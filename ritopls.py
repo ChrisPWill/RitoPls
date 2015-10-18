@@ -1,5 +1,5 @@
 from collections import deque
-import datetime
+from datetime import datetime, timedelta
 
 
 class RateLimiter:
@@ -15,7 +15,7 @@ class RateLimiter:
 
     def make_req(self):
         self.reqs.append(datetime.now() +
-                         datetime.timedelta(seconds=self.seconds))
+                         timedelta(seconds=self.timespan))
 
     def available(self):
         self.__update()
