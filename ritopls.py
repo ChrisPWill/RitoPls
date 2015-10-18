@@ -20,3 +20,10 @@ class RateLimiter:
     def available(self):
         self.__update()
         return len(self.reqs) < self.request_limit
+
+
+class RitoPls:
+    def __init__(self, region, api_key, rate_limiters):
+        self.region = region
+        self.api = api_key
+        self.rl = rate_limiters
