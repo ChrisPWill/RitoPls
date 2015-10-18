@@ -28,7 +28,9 @@ class RitoPls:
     def __init__(self, region, api_key, rate_limiters):
         self.region = region
         self.api = api_key
-        self.rl = rate_limiters
+        self.rl = []
+        for (rl, timespan) in rate_limiters:
+            self.rl.append(RateLimiter(rl, timespan))
 
     def inc_requests(self):
         for rl in self.rl:

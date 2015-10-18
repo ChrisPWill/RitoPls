@@ -46,9 +46,7 @@ class TestRateLimiter(unittest.TestCase):
 
 class TestRitoPlsRateLimits(unittest.TestCase):
     def setUp(self):
-        rl1 = RateLimiter(2, 0.1)
-        rl2 = RateLimiter(3, 0.2)
-        self.rp = RitoPls(region=OCEANIA, rate_limiters=[rl1, rl2],
+        self.rp = RitoPls(region=OCEANIA, rate_limiters=[(2, 0.1), (3, 0.2)],
                           api_key=apikey)
 
     def test_rl1(self):
