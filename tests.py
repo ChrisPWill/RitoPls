@@ -1,6 +1,8 @@
 import unittest
 import time
-from ritopls import RateLimiter
+from ritopls import RitoPls, RateLimiter, OCEANIA
+
+# apikey= "<api_key_here>"
 
 
 class TestRateLimiter(unittest.TestCase):
@@ -40,6 +42,29 @@ class TestRateLimiter(unittest.TestCase):
         # Wait 120ms
         time.sleep(0.12)
         self.assertEqual(rl.available(), True)
+
+
+class TestRitoPlsRateLimits(unittest.TestCase):
+    def setUp(self):
+        rl1 = RateLimiter(2, 0.1)
+        rl2 = RateLimiter(3, 0.2)
+        self.rp = RitoPls(region=OCEANIA, rate_limiters=[rl1, rl2],
+                          api_key=apikey)
+
+    def test_rl1(self):
+        self.rp.inc_requests()
+        self.rp.inc_requests()
+        self.assertFalse(self.rp.available())
+        time.sleep(0.11)
+        self.assertTrue(self.rp.available())
+
+    def test_rl_both(self):
+        self.test_rl1()
+        self.rp.inc_requests()
+        self.assertFalse(self.rp.available())
+        time.sleep(0.1)
+        self.assertTrue(self.rp.available())
+
 
 if __name__ == "__main__":
     unittest.main()

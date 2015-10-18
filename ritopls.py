@@ -1,6 +1,8 @@
 from collections import deque
 from datetime import datetime, timedelta
 
+OCEANIA = 'oce'
+
 
 class RateLimiter:
     def __init__(self, request_limit, timespan):
@@ -27,3 +29,13 @@ class RitoPls:
         self.region = region
         self.api = api_key
         self.rl = rate_limiters
+
+    def inc_requests(self):
+        for rl in self.rl:
+            rl.make_req()
+
+    def available(self):
+        for rl in self.rl:
+            if not rl.available():
+                return False
+        return True
