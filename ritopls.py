@@ -24,6 +24,13 @@ class RateLimiter:
         self.__update()
         return len(self.reqs) < self.request_limit
 
+    def when_available(self):
+        self.__update()
+        if self.available:
+            return datetime.now()
+        else:
+            return self.reqs[0]
+
 
 class LoLException(Exception):
     def __init__(self, error, response):
@@ -51,6 +58,14 @@ class RitoPls:
             if not rl.available():
                 return False
         return True
+
+    def wait_time_seconds(self):
+        when = datetime.now()
+        for rl in self.rl:
+            rl_when = rl.when_available()
+            if rl_when > rl:
+                when = rl_when
+        return (when - datetime.now()).total_seconds()
 
     def request(self, endpnt, static=False, **kwargs):
         if not static:
@@ -83,7 +98,7 @@ class RitoPls:
 
         return r.json()
 
-    def summoner_bynames(self, names, **kwargs):
+    def summoners_byname(self, names):
         v = '1.4'
         return self.request(
             'v{version}/summoner/by-name/{sum_names}'.format(
@@ -91,3 +106,6 @@ class RitoPls:
                 sum_names=','.join([n.replace(' ', '').lower() for n in names])
             )
         )
+
+    def summoner_byname(self, name):
+        return self.summoners_byname([name, ])

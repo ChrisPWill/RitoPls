@@ -74,7 +74,7 @@ class TestRitoPlsEndPoints(unittest.TestCase):
             time.sleep(0.01)
 
     def test_byname(self):
-        res = oce.summoner_bynames(["Strat", ])
+        res = oce.summoner_byname("Strat")
         self.assertEqual(res['strat']['name'], 'Strat')
         self.assertEqual(res['strat']['id'], 401477)
 
