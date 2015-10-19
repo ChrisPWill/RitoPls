@@ -64,5 +64,19 @@ class TestRitoPlsRateLimits(unittest.TestCase):
         self.assertTrue(self.rp.available())
 
 
+oce = RitoPls(region=OCEANIA, rate_limiters=[(500, 600), (10, 10)],
+              api_key=apikey)
+
+
+class TestRitoPlsEndPoints(unittest.TestCase):
+    def setUp(self):
+        while (not oce.available()):
+            time.sleep(0.01)
+
+    def test_byname(self):
+        res = oce.summoner_bynames(["Strat", ])
+        self.assertEqual(res['strat']['name'], 'Strat')
+        self.assertEqual(res['strat']['id'], 401477)
+
 if __name__ == "__main__":
     unittest.main()

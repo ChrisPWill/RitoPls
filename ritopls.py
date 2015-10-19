@@ -1,5 +1,6 @@
 from collections import deque
 from datetime import datetime, timedelta
+import requests
 
 OCEANIA = 'oce'
 
@@ -24,6 +25,15 @@ class RateLimiter:
         return len(self.reqs) < self.request_limit
 
 
+class LoLException(Exception):
+    def __init__(self, error, response):
+        self.error = error
+        self.headers = response.headers
+
+    def __str__(self):
+        return self.error
+
+
 class RitoPls:
     def __init__(self, region, api_key, rate_limiters):
         self.region = region
@@ -41,3 +51,43 @@ class RitoPls:
             if not rl.available():
                 return False
         return True
+
+    def request(self, endpnt, static=False, **kwargs):
+        if not static:
+            self.inc_requests()
+        args = {'api_key': self.api}
+        for kw in kwargs:
+            if kwargs[kw] is not None:
+                args[kw] = kwargs[kw]
+        r = requests.get(
+            'https://{loc}.api.pvp.net/api/lol/{sdata}{region}/{endpnt}'.format(
+                loc=self.region if not static else 'global',
+                sdata='' if not static else 'static-data/',
+                region=self.region,
+                endpnt=endpnt),
+            params=args)
+        if r.status_code == 400:
+            raise LoLException("400: Bad request", r)
+        elif r.status_code == 401:
+            raise LoLException("401: Unauthorised", r)
+        elif r.status_code == 404:
+            raise LoLException("404: Game data not found", r)
+        elif r.status_code == 429:
+            raise LoLException("429: Too many requests", r)
+        elif r.status_code == 500:
+            raise LoLException("500: Internal server error", r)
+        elif r.status_code == 503:
+            raise LoLException("503: Service unavailable", r)
+        else:
+            r.raise_for_status()
+
+        return r.json()
+
+    def summoner_bynames(self, names, **kwargs):
+        v = '1.4'
+        return self.request(
+            'v{version}/summoner/by-name/{sum_names}'.format(
+                version=v,
+                sum_names=','.join([n.replace(' ', '').lower() for n in names])
+            )
+        )
