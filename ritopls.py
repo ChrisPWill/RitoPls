@@ -158,5 +158,9 @@ class RitoPls:
                     sumId=summonerId
                 )
             )
-        except LoLException:
-            raise
+        except LoLException as e:
+            print (e.status_code)
+            if e.status_code is 404:
+                return None
+            else:
+                raise
