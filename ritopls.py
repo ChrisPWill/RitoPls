@@ -4,6 +4,8 @@ import requests
 
 OCEANIA = 'oce'
 
+platformIds = {OCEANIA: 'OC1', }
+
 
 class RateLimiter:
     def __init__(self, request_limit, timespan):
@@ -67,6 +69,22 @@ class RitoPls:
                 when = rl_when
         return (when - datetime.now()).total_seconds()
 
+    def __check_exceptions(self, request):
+        if request.status_code == 400:
+            raise LoLException("400: Bad request", request)
+        elif request.status_code == 401:
+            raise LoLException("401: Unauthorised", request)
+        elif request.status_code == 404:
+            raise LoLException("404: Game data not found", request)
+        elif request.status_code == 429:
+            raise LoLException("429: Too many requests", request)
+        elif request.status_code == 500:
+            raise LoLException("500: Internal server error", request)
+        elif request.status_code == 503:
+            raise LoLException("503: Service unavailable", request)
+        else:
+            request.raise_for_status()
+
     def request(self, endpnt, static=False, **kwargs):
         if not static:
             self.inc_requests()
@@ -81,20 +99,24 @@ class RitoPls:
                 region=self.region,
                 endpnt=endpnt),
             params=args)
-        if r.status_code == 400:
-            raise LoLException("400: Bad request", r)
-        elif r.status_code == 401:
-            raise LoLException("401: Unauthorised", r)
-        elif r.status_code == 404:
-            raise LoLException("404: Game data not found", r)
-        elif r.status_code == 429:
-            raise LoLException("429: Too many requests", r)
-        elif r.status_code == 500:
-            raise LoLException("500: Internal server error", r)
-        elif r.status_code == 503:
-            raise LoLException("503: Service unavailable", r)
-        else:
-            r.raise_for_status()
+
+        self.__check_exceptions(r)
+
+        return r.json()
+
+    def observer_request(self, endpnt, **kwargs):
+        self.inc_requests()
+        args = {'api_key': self.api}
+        for kw in kwargs:
+            if kwargs[kw] is not None:
+                args[kw] = kwargs[kw]
+        r = requests.get(
+            'https://{loc}.api.pvp.net/observer-mode/rest/{endpnt}'.format(
+                loc=self.region,
+                endpnt=endpnt),
+            params=args)
+
+        self.__check_exceptions(r)
 
         return r.json()
 
@@ -109,3 +131,12 @@ class RitoPls:
 
     def summoner_byname(self, name):
         return self.summoners_byname([name, ])
+
+    def currentgame(self, summonerId):
+        # based on current-game-v1.0
+        return self.observer_request(
+            'consumer/getSpectatorGameInfo/{platId}/{sumId}'.format(
+                platId=platformIds[self.region],
+                sumId=summonerId
+            )
+        )
