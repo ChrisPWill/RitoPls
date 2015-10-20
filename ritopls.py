@@ -102,7 +102,10 @@ class RitoPls:
         if not static:
             self.inc_requests()
 
-        self.__check_exceptions(r)
+        try:
+            self.__check_exceptions(r)
+        except LoLException:
+            raise
 
         return r.json()
 
@@ -119,7 +122,10 @@ class RitoPls:
 
         self.inc_requests()
 
-        self.__check_exceptions(r)
+        try:
+            self.__check_exceptions(r)
+        except LoLException:
+            raise
 
         return r.json()
 
