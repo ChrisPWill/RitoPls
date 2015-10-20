@@ -86,8 +86,6 @@ class RitoPls:
             request.raise_for_status()
 
     def request(self, endpnt, static=False, **kwargs):
-        if not static:
-            self.inc_requests()
         args = {'api_key': self.api}
         for kw in kwargs:
             if kwargs[kw] is not None:
@@ -100,12 +98,14 @@ class RitoPls:
                 endpnt=endpnt),
             params=args)
 
+        if not static:
+            self.inc_requests()
+
         self.__check_exceptions(r)
 
         return r.json()
 
     def observer_request(self, endpnt, **kwargs):
-        self.inc_requests()
         args = {'api_key': self.api}
         for kw in kwargs:
             if kwargs[kw] is not None:
@@ -115,6 +115,8 @@ class RitoPls:
                 loc=self.region,
                 endpnt=endpnt),
             params=args)
+
+        self.inc_requests()
 
         self.__check_exceptions(r)
 
