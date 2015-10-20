@@ -109,6 +109,17 @@ class RitoPls:
 
         return r.json()
 
+    def static_request(self, endpnt, **kwargs):
+        version = '1.2'
+        return self.request(
+            'v{version}/{endpnt}'.format(
+                version=version,
+                endpnt=endpnt
+            ),
+            static=True,
+            **kwargs
+        )
+
     def observer_request(self, endpnt, **kwargs):
         args = {'api_key': self.api}
         for kw in kwargs:
@@ -164,3 +175,13 @@ class RitoPls:
                 return None
             else:
                 raise
+
+    def static_champion_list(self, locale='en_US', version=None,
+                             data_by_id=False, champ_data='recommended,image'):
+        return self.static_request(
+            endpnt='champion',
+            locale=locale,
+            version=version,
+            dataById=data_by_id,
+            champData=champ_data
+        )

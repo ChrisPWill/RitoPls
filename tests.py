@@ -93,3 +93,8 @@ if __name__ == "__main__":
     ingame = input("Enter an OCE summoner currently in a game: ")
     notingame = input("Enter an OCE summoner currently NOT in a game: ")
     unittest.main()
+
+class TestStaticEndPoints(unittest.TestCase):
+    def test_champlist(self):
+        res = oce.static_champion_list()
+        assertEqual(res["1"]["name"], "Annie")
