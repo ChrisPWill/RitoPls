@@ -38,6 +38,7 @@ class LoLException(Exception):
     def __init__(self, error, response):
         self.error = error
         self.headers = response.headers
+        self.status_code = response.status_code
 
     def __str__(self):
         return self.error
@@ -124,21 +125,32 @@ class RitoPls:
 
     def summoners_byname(self, names):
         v = '1.4'
-        return self.request(
-            'v{version}/summoner/by-name/{sum_names}'.format(
-                version=v,
-                sum_names=','.join([n.replace(' ', '').lower() for n in names])
+        try:
+            return self.request(
+                'v{version}/summoner/by-name/{sum_names}'.format(
+                    version=v,
+                    sum_names=','.join(
+                        [n.replace(' ', '').lower() for n in names]
+                    )
+                )
             )
-        )
+        except LoLException:
+            raise
 
     def summoner_byname(self, name):
-        return self.summoners_byname([name, ])
+        try:
+            return self.summoners_byname([name, ])
+        except LoLException:
+            raise
 
     def currentgame(self, summonerId):
         # based on current-game-v1.0
-        return self.observer_request(
-            'consumer/getSpectatorGameInfo/{platId}/{sumId}'.format(
-                platId=platformIds[self.region],
-                sumId=summonerId
+        try:
+            return self.observer_request(
+                'consumer/getSpectatorGameInfo/{platId}/{sumId}'.format(
+                    platId=platformIds[self.region],
+                    sumId=summonerId
+                )
             )
-        )
+        except LoLException:
+            raise
