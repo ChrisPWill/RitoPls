@@ -3,6 +3,7 @@ import time
 from ritopls import RitoPls, RateLimiter, OCEANIA
 
 # apikey= "<api_key_here>"
+apikey = "b3043444-d68e-40a5-b4e7-2279561cd4fa"
 ingame = None
 notingame = None
 
@@ -91,10 +92,14 @@ class TestRitoPlsEndPoints(unittest.TestCase):
 
 if __name__ == "__main__":
     ingame = input("Enter an OCE summoner currently in a game: ")
+    response = oce.summoner_byname(ingame)
+    sumid = next(iter(response.values()))['id']
+    print(oce.currentgame(sumid))
     notingame = input("Enter an OCE summoner currently NOT in a game: ")
     unittest.main()
+
 
 class TestStaticEndPoints(unittest.TestCase):
     def test_champlist(self):
         res = oce.static_champion_list()
-        assertEqual(res["1"]["name"], "Annie")
+        self.assertEqual(res["1"]["name"], "Annie")
