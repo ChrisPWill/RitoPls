@@ -3,7 +3,6 @@ import time
 from ritopls import RitoPls, RateLimiter, OCEANIA
 
 # apikey= "<api_key_here>"
-apikey = "b3043444-d68e-40a5-b4e7-2279561cd4fa"
 ingame = None
 notingame = None
 
