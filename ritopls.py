@@ -160,6 +160,15 @@ class RitoPls:
         except LoLException:
             raise
 
+    def match(self, matchId):
+        v = '2.2'
+        try:
+            return self.request(
+                'v{version}/match/{matchId}'.format(version=v, matchId=matchId)
+            )
+        except LoLException:
+            raise
+
     def currentgame(self, summonerId):
         # based on current-game-v1.0
         try:

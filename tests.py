@@ -89,16 +89,20 @@ class TestRitoPlsEndPoints(unittest.TestCase):
             currentgame = oce.currentgame(sumid)
             self.assertTrue(currentgame['gameLength'] > 0)
 
-if __name__ == "__main__":
-    ingame = input("Enter an OCE summoner currently in a game: ")
-    response = oce.summoner_byname(ingame)
-    sumid = next(iter(response.values()))['id']
-    print(oce.currentgame(sumid))
-    notingame = input("Enter an OCE summoner currently NOT in a game: ")
-    unittest.main()
+    def test_match(self):
+        response = oce.match(113474328)
+        self.assertEqual(response['matchType'], 'MATCHED_GAME')
 
 
 class TestStaticEndPoints(unittest.TestCase):
     def test_champlist(self):
-        res = oce.static_champion_list()
-        self.assertEqual(res["1"]["name"], "Annie")
+        res = oce.static_champion_list(data_by_id=True)
+        self.assertEqual(res['data']["1"]["name"], "Annie")
+
+
+if __name__ == "__main__":
+    ingame = input("Enter an OCE summoner currently in a game: ")
+    response = oce.summoner_byname(ingame)
+    sumid = next(iter(response.values()))['id']
+    notingame = input("Enter an OCE summoner currently NOT in a game: ")
+    unittest.main()
