@@ -166,8 +166,11 @@ class RitoPls:
             return self.request(
                 'v{version}/match/{matchId}'.format(version=v, matchId=matchId)
             )
-        except LoLException:
-            raise
+        except LoLException as e:
+            if e.status_code is 404:
+                return None
+            else:
+                raise
 
     def currentgame(self, summonerId):
         # based on current-game-v1.0
