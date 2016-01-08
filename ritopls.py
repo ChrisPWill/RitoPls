@@ -51,6 +51,8 @@ class RitoPls:
         self.rl = []
         for (rl, timespan) in rate_limiters:
             self.rl.append(RateLimiter(rl, timespan))
+        self.realm = None
+        self.refresh_realm()
 
     def inc_requests(self):
         for rl in self.rl:
@@ -111,6 +113,7 @@ class RitoPls:
 
     def static_request(self, endpnt, **kwargs):
         version = '1.2'
+        # check if realm needs a refresh
         return self.request(
             'v{version}/{endpnt}'.format(
                 version=version,
@@ -119,6 +122,15 @@ class RitoPls:
             static=True,
             **kwargs
         )
+
+    def refresh_realm(self):
+        oldrealm = self.realm
+        try:
+            self.realm = self.static_request(endpnt='realm')
+        except:
+            self.realm = oldrealm
+        else:
+            self.last_realm_refresh = datetime.now()
 
     def observer_request(self, endpnt, **kwargs):
         args = {'api_key': self.api}
@@ -197,3 +209,17 @@ class RitoPls:
             dataById=data_by_id,
             champData=champ_data
         )
+
+    def static_champ_icon_url(self, icon_filename):
+        return ("http://ddragon.leagueoflegends.com/cdn/"
+                "{dd}/img/champion/{filename}").format(
+            dd=str(self.realm['dd']),
+            filename=icon_filename
+            )
+
+    def static_profile_icon_url(self, icon_id):
+        return ("http://ddragon.leagueoflegends.com/cdn/"
+                "{dd}/img/profileicon/{iid}.png").format(
+            dd=str(self.realm['dd']),
+            iid=icon_id
+            )
